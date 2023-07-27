@@ -28,6 +28,7 @@ ix.option.Add("footstepVolume", ix.type.number, 1, {
 })
 
 ix.lang.AddTable("english", {
+	footsteps = "Footsteps",
 	optFootstepVolume = "Own footstep volume",
 	optdFootstepVolume = "Changes the volume of your own footsteps, does not work if disabled by the server."
 })
