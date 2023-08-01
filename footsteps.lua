@@ -119,9 +119,9 @@ if CLIENT then
 			val = 0.6
 		else
 			if client:KeyDown(IN_WALK) and vel < 90 then
-				val = 0.3 / (vel / 90)
+				val = 0.375 / (vel / 90)
 			else
-				val = math.max(math.Remap(vel, 90, 235, 0.45, 0.3), 0.1)
+				val = math.max(math.Remap(vel, 90, 235, 0.4, 0.3), 0.1)
 			end
 		end
 
