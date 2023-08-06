@@ -1,4 +1,3 @@
-
 PLUGIN.name = "Footsteps"
 PLUGIN.description = "Rewrites and improves on Source's handling of footsteps."
 PLUGIN.author = "TankNut"
