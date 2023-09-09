@@ -44,49 +44,51 @@ function PLUGIN:EntityEmitSound(info)
 end
 
 if CLIENT then
-	function PLUGIN:InitPostEntity()
-		local client = LocalPlayer()
-
-		client.NextStepTime = 0
-		client.NextStepSide = false
-		client.StepSkip = 0
+	function PLUGIN:NetworkEntityCreated(ent)
+		if ent:IsPlayer() then
+			ent.NextStepTime = 0
+			ent.NextStepSide = false
+			ent.StepSkip = 0
+		end
 	end
 
-	function PLUGIN:FinishMove(client, mv)
-		if not IsFirstTimePredicted() or client.NextStepTime > CurTime() then
-			return
+	function PLUGIN:Think()
+		for _, client in pairs(player.GetAll()) do
+			if client:IsDormant() or client.NextStepTime > CurTime() then
+				continue
+			end
+
+			if client:GetMoveType() == MOVETYPE_NOCLIP then
+				continue
+			end
+
+			if client:GetMoveType() != MOVETYPE_LADDER and not client:IsFlagSet(FL_ONGROUND) then
+				continue
+			end
+
+			if ix.config.Get("silentCrouching") and client:Crouching() then
+				continue
+			end
+
+			if ix.config.Get("silentWalking") and client:KeyDown(IN_WALK) then
+				continue
+			end
+
+			local vel = client:GetVelocity():Length()
+
+			if vel < hook.Run("GetMinStepSpeed", client) then
+				continue
+			end
+
+			local side = client.NextStepSide
+
+			if hook.Run("HandlePlayerStep", client, side) == true then
+				continue
+			end
+
+			client.NextStepTime = CurTime() + hook.Run("GetNextStepTime", client, vel)
+			client.NextStepSide = not side
 		end
-
-		if client:GetMoveType() == MOVETYPE_NOCLIP then
-			return
-		end
-
-		if client:GetMoveType() != MOVETYPE_LADDER and not client:IsFlagSet(FL_ONGROUND) then
-			return
-		end
-
-		if ix.config.Get("silentCrouching") and client:Crouching() then
-			return
-		end
-
-		if ix.config.Get("silentWalking") and client:KeyDown(IN_WALK) then
-			return
-		end
-
-		local vel = mv:GetVelocity():Length()
-
-		if vel < hook.Run("GetMinStepSpeed", client) then
-			return
-		end
-
-		local side = client.NextStepSide
-
-		if hook.Run("HandlePlayerStep", client, side) == true then
-			return
-		end
-
-		client.NextStepTime = CurTime() + hook.Run("GetNextStepTime", client, vel)
-		client.NextStepSide = not side
 	end
 
 	function PLUGIN:HandlePlayerStep(client, side)
@@ -104,7 +106,7 @@ if CLIENT then
 
 	-- GAMEMODE functions, act as fallbacks for hook.Run
 	function GAMEMODE:GetMinStepSpeed(client)
-		return client:GetWalkSpeed() * math.min(ix.config.Get("walkRatio"), client:GetCrouchedWalkSpeed()) - 1
+		return ix.config.Get("walkSpeed") * client:GetCrouchedWalkSpeed()
 	end
 
 	function GAMEMODE:GetNextStepTime(client, vel)
@@ -158,7 +160,7 @@ if CLIENT then
 
 			local class = ix.class.Get(character:GetClass())
 
-			if class.ModifyPlayerStep and class:ModifyPlayerStep(client, data) == true then
+			if class and class.ModifyPlayerStep and class:ModifyPlayerStep(client, data) == true then
 				return true
 			end
 		end
