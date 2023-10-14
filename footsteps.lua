@@ -142,9 +142,18 @@ if CLIENT then
 		elseif client:WaterLevel() >= 1 then
 			return side and wadeSurface.stepRightSound or wadeSurface.stepLeftSound, client:IsRunning() and 0.65 or 0.25
 		else
+			local volume = client:IsRunning() and 0.5 or 0.2
+			local snd
+
 			local prop = client:GetSurfaceData()
 
-			return side and prop.stepRightSound or prop.stepLeftSound, client:IsRunning() and 0.5 or 0.2
+			if prop then
+				snd = side and prop.stepRightSound or prop.stepLeftSound
+			else
+				snd = side and "Default.StepRight" or "Default.StepLeft"
+			end
+
+			return snd, volume
 		end
 	end
 
