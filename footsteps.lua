@@ -44,16 +44,14 @@ function PLUGIN:EntityEmitSound(info)
 end
 
 if CLIENT then
-	function PLUGIN:NetworkEntityCreated(ent)
-		if ent:IsPlayer() then
-			ent.NextStepTime = 0
-			ent.NextStepSide = false
-			ent.StepSkip = 0
-		end
-	end
-
 	function PLUGIN:Think()
 		for _, client in pairs(player.GetAll()) do
+			if not client.NextStepTime then
+				ent.NextStepTime = 0
+				ent.NextStepSide = false
+				ent.StepSkip = 0
+			end
+
 			if client:IsDormant() or client.NextStepTime > CurTime() then
 				continue
 			end
