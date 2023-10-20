@@ -47,9 +47,9 @@ if CLIENT then
 	function PLUGIN:Think()
 		for _, client in pairs(player.GetAll()) do
 			if not client.NextStepTime then
-				ent.NextStepTime = 0
-				ent.NextStepSide = false
-				ent.StepSkip = 0
+				client.NextStepTime = 0
+				client.NextStepSide = false
+				client.StepSkip = 0
 			end
 
 			if client:IsDormant() or client.NextStepTime > CurTime() then
